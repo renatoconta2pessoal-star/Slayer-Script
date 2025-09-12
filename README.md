@@ -1,1 +1,95 @@
-# Slayer-Script
+-- Menu Anti-Lag no estilo "hub"
+local Players = game:GetService("Players")
+local Lighting = game:GetService("Lighting")
+local Workspace = game:GetService("Workspace")
+local player = Players.LocalPlayer
+local gui = player:WaitForChild("PlayerGui")
+
+-- salva valores originais de iluminação
+local orig = {
+    GlobalShadows = Lighting.GlobalShadows,
+    Brightness = Lighting.Brightness,
+    FogEnd = Lighting.FogEnd,
+    Ambient = Lighting.Ambient,
+    OutdoorAmbient = Lighting.OutdoorAmbient,
+}
+local anti = false
+
+local function setAntiLag(on)
+    anti = on
+    if on then
+        pcall(function()
+            Lighting.GlobalShadows = false
+            Lighting.Brightness = 1
+            Lighting.FogEnd = 1000
+            Lighting.Ambient = Color3.fromRGB(128,128,128)
+            Lighting.OutdoorAmbient = Color3.fromRGB(100,100,100)
+        end)
+    else
+        pcall(function()
+            Lighting.GlobalShadows = orig.GlobalShadows
+            Lighting.Brightness = orig.Brightness
+            Lighting.FogEnd = orig.FogEnd
+            Lighting.Ambient = orig.Ambient
+            Lighting.OutdoorAmbient = orig.OutdoorAmbient
+        end)
+    end
+    for _,o in ipairs(Workspace:GetDescendants()) do
+        if o:IsA("ParticleEmitter") or o:IsA("Trail") or o:IsA("Beam")
+        or o:IsA("Fire") or o:IsA("Smoke") or o:IsA("Sparkles")
+        or o:IsA("PointLight") or o:IsA("SurfaceLight") or o:IsA("SpotLight") then
+            pcall(function() o.Enabled = not on end)
+        end
+        if o:IsA("Decal") or o:IsA("Texture") then
+            pcall(function() o.Transparency = on and 1 or 0 end)
+        end
+        if o:IsA("BasePart") then
+            pcall(function() if on then o.Material = Enum.Material.SmoothPlastic end end)
+        end
+    end
+    warn(on and "[Anti-Lag] Ativado" or "[Anti-Lag] Desativado")
+end
+
+-- ===== UI no estilo de hub =====
+if gui:FindFirstChild("FPSHub") then gui.FPSHub:Destroy() end
+local screen = Instance.new("ScreenGui", gui)
+screen.Name = "FPSHub"
+screen.ResetOnSpawn = false
+
+local main = Instance.new("Frame", screen)
+main.Size = UDim2.new(0,300,0,180)
+main.Position = UDim2.new(0.5,-150,0.5,-90)
+main.BackgroundColor3 = Color3.fromRGB(25,25,25)
+main.BackgroundTransparency = 0.2
+main.BorderSizePixel = 0
+main.AnchorPoint = Vector2.new(0.5,0.5)
+main.Active = true
+main.Draggable = true    -- permite arrastar o menu
+
+local uicorner = Instance.new("UICorner", main)
+uicorner.CornerRadius = UDim.new(0,12)
+
+local title = Instance.new("TextLabel", main)
+title.Size = UDim2.new(1,0,0,40)
+title.BackgroundTransparency = 1
+title.Text = "FPS Hub - Anti Lag"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 20
+title.TextColor3 = Color3.new(1,1,1)
+
+local btn = Instance.new("TextButton", main)
+btn.Size = UDim2.new(1,-40,0,50)
+btn.Position = UDim2.new(0,20,0,60)
+btn.Text = "Ativar Anti-Lag"
+btn.Font = Enum.Font.Gotham
+btn.TextSize = 18
+btn.BackgroundColor3 = Color3.fromRGB(40,40,40)
+btn.TextColor3 = Color3.new(1,1,1)
+
+local cornerBtn = Instance.new("UICorner", btn)
+cornerBtn.CornerRadius = UDim.new(0,8)
+
+btn.MouseButton1Click:Connect(function()
+    setAntiLag(not anti)
+    btn.Text = anti and "Desativar Anti-Lag" or "Ativar Anti-Lag"
+end)
