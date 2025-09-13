@@ -47,6 +47,39 @@ local function setAntiLag(on)
             pcall(function() if on then o.Material = Enum.Material.SmoothPlastic end end)
         end
     end
+
+    -- ===== Otimizações extras =====
+    -- Esconder nomes de NPCs
+    for _, model in ipairs(Workspace:GetDescendants()) do
+        if model:IsA("Model") and model:FindFirstChild("Humanoid") then
+            local hum = model:FindFirstChildOfClass("Humanoid")
+            if hum and not Players:GetPlayerFromCharacter(model) then
+                -- se não for personagem de jogador (é NPC)
+                pcall(function() hum.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None end)
+            end
+        end
+    end
+
+    -- "Skin" super simples em todos os jogadores (menos você)
+    for _,plr in ipairs(Players:GetPlayers()) do
+        if plr ~= player and plr.Character then
+            for _, part in ipairs(plr.Character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    pcall(function()
+                        if on then
+                            part.Material = Enum.Material.SmoothPlastic
+                            part.Color = Color3.fromRGB(0,0,0) -- tudo preto
+                        else
+                            -- não dá pra restaurar a cor exata sem salvar antes,
+                            -- então aqui deixamos só SmoothPlastic
+                            part.Material = Enum.Material.SmoothPlastic
+                        end
+                    end)
+                end
+            end
+        end
+    end
+
     warn(on and "[Anti-Lag] Ativado" or "[Anti-Lag] Desativado")
 end
 
