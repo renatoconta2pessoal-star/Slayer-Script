@@ -127,28 +127,19 @@ btn.MouseButton1Click:Connect(function()
     btn.Text = anti and "Desativar Anti-Lag" or "Ativar Anti-Lag"
 end)
 
--- ===== Tela Esticada (efeito) =====
+-- ===== Efeito zoom usando FieldOfView =====
 local stretched = false
-local stretchFrame = Instance.new("Frame", screen)
-stretchFrame.Size = UDim2.new(1.1,0,1,0)  -- 10% mais largo
-stretchFrame.Position = UDim2.new(-0.05,0,0,0) -- centraliza
-stretchFrame.BackgroundColor3 = Color3.new(0,0,0)
-stretchFrame.BorderSizePixel = 0
-stretchFrame.Visible = false
-
-local viewport = Instance.new("ViewportFrame", stretchFrame)
-viewport.Size = UDim2.new(1,0,1,0)
-viewport.BackgroundTransparency = 1
-viewport.CurrentCamera = workspace.CurrentCamera
-
--- Atualiza a câmera do viewport
-workspace.CurrentCamera:GetPropertyChangedSignal("CFrame"):Connect(function()
-    viewport.CurrentCamera = workspace.CurrentCamera
-end)
+local originalFOV = workspace.CurrentCamera.FieldOfView
 
 local function setTelaEsticada(on)
     stretched = on
-    stretchFrame.Visible = on
+    if on then
+        -- Aumenta o FOV, dá sensação de tela mais larga
+        workspace.CurrentCamera.FieldOfView = originalFOV + 20
+    else
+        -- Restaura o FOV original
+        workspace.CurrentCamera.FieldOfView = originalFOV
+    end
 end
 
 -- Botão Tela Esticada
