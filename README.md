@@ -1,5 +1,4 @@
 -- Menu Anti-Lag no estilo "hub"
-
 local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
 local Workspace = game:GetService("Workspace")
@@ -14,7 +13,6 @@ local orig = {
     Ambient = Lighting.Ambient,
     OutdoorAmbient = Lighting.OutdoorAmbient,
 }
-
 local anti = false
 
 local function setAntiLag(on)
@@ -36,7 +34,6 @@ local function setAntiLag(on)
             Lighting.OutdoorAmbient = orig.OutdoorAmbient
         end)
     end
-
     for _,o in ipairs(Workspace:GetDescendants()) do
         if o:IsA("ParticleEmitter") or o:IsA("Trail") or o:IsA("Beam")
         or o:IsA("Fire") or o:IsA("Smoke") or o:IsA("Sparkles")
@@ -47,9 +44,7 @@ local function setAntiLag(on)
             pcall(function() o.Transparency = on and 1 or 0 end)
         end
         if o:IsA("BasePart") then
-            pcall(function()
-                if on then o.Material = Enum.Material.SmoothPlastic end
-            end)
+            pcall(function() if on then o.Material = Enum.Material.SmoothPlastic end end)
         end
     end
 
@@ -60,9 +55,7 @@ local function setAntiLag(on)
             local hum = model:FindFirstChildOfClass("Humanoid")
             if hum and not Players:GetPlayerFromCharacter(model) then
                 -- se não for personagem de jogador (é NPC)
-                pcall(function()
-                    hum.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
-                end)
+                pcall(function() hum.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None end)
             end
         end
     end
@@ -90,26 +83,8 @@ local function setAntiLag(on)
     warn(on and "[Anti-Lag] Ativado" or "[Anti-Lag] Desativado")
 end
 
--- Desliga efeitos que aparecerem depois que o Anti-Lag estiver ativo
-Workspace.DescendantAdded:Connect(function(o)
-    if anti then
-        if o:IsA("ParticleEmitter") or o:IsA("Trail") or o:IsA("Beam")
-        or o:IsA("Fire") or o:IsA("Smoke") or o:IsA("Sparkles")
-        or o:IsA("PointLight") or o:IsA("SurfaceLight") or o:IsA("SpotLight") then
-            pcall(function() o.Enabled = false end)
-        end
-        if o:IsA("Decal") or o:IsA("Texture") then
-            pcall(function() o.Transparency = 1 end)
-        end
-        if o:IsA("BasePart") then
-            pcall(function() o.Material = Enum.Material.SmoothPlastic end)
-        end
-    end
-end)
-
 -- ===== UI no estilo de hub =====
 if gui:FindFirstChild("FPSHub") then gui.FPSHub:Destroy() end
-
 local screen = Instance.new("ScreenGui", gui)
 screen.Name = "FPSHub"
 screen.ResetOnSpawn = false
@@ -150,4 +125,46 @@ cornerBtn.CornerRadius = UDim.new(0,8)
 btn.MouseButton1Click:Connect(function()
     setAntiLag(not anti)
     btn.Text = anti and "Desativar Anti-Lag" or "Ativar Anti-Lag"
+end)
+
+-- ===== Tela Esticada (efeito) =====
+local stretched = false
+local stretchFrame = Instance.new("Frame", screen)
+stretchFrame.Size = UDim2.new(1.1,0,1,0)  -- 10% mais largo
+stretchFrame.Position = UDim2.new(-0.05,0,0,0) -- centraliza
+stretchFrame.BackgroundColor3 = Color3.new(0,0,0)
+stretchFrame.BorderSizePixel = 0
+stretchFrame.Visible = false
+
+local viewport = Instance.new("ViewportFrame", stretchFrame)
+viewport.Size = UDim2.new(1,0,1,0)
+viewport.BackgroundTransparency = 1
+viewport.CurrentCamera = workspace.CurrentCamera
+
+-- Atualiza a câmera do viewport
+workspace.CurrentCamera:GetPropertyChangedSignal("CFrame"):Connect(function()
+    viewport.CurrentCamera = workspace.CurrentCamera
+end)
+
+local function setTelaEsticada(on)
+    stretched = on
+    stretchFrame.Visible = on
+end
+
+-- Botão Tela Esticada
+local btnStretch = Instance.new("TextButton", main)
+btnStretch.Size = UDim2.new(1,-40,0,50)
+btnStretch.Position = UDim2.new(0,20,0,120)
+btnStretch.Text = "Tela Esticada"
+btnStretch.Font = Enum.Font.Gotham
+btnStretch.TextSize = 18
+btnStretch.BackgroundColor3 = Color3.fromRGB(40,40,40)
+btnStretch.TextColor3 = Color3.new(1,1,1)
+
+local cornerBtn2 = Instance.new("UICorner", btnStretch)
+cornerBtn2.CornerRadius = UDim.new(0,8)
+
+btnStretch.MouseButton1Click:Connect(function()
+    setTelaEsticada(not stretched)
+    btnStretch.Text = stretched and "Desativar Tela Esticada" or "Tela Esticada"
 end)
