@@ -127,20 +127,20 @@ btn.MouseButton1Click:Connect(function()
     btn.Text = anti and "Desativar Anti-Lag" or "Ativar Anti-Lag"
 end)
 
--- ===== Efeito zoom usando FieldOfView =====
-local stretched = false
-local originalFOV = workspace.CurrentCamera.FieldOfView
+-- ===== Tela esticada kk =====
+getgenv().Resolution = {
+    [".gg/scripters"] = 0.65
+}
 
-local function setTelaEsticada(on)
-    stretched = on
-    if on then
-        -- Aumenta o FOV, dá sensação de tela mais larga
-        workspace.CurrentCamera.FieldOfView = originalFOV + 20
-    else
-        -- Restaura o FOV original
-        workspace.CurrentCamera.FieldOfView = originalFOV
-    end
+local Camera = workspace.CurrentCamera
+if getgenv().gg_scripters == nil then
+    game:GetService("RunService").RenderStepped:Connect(
+        function()
+            Camera.CFrame = Camera.CFrame * CFrame.new(0, 0, 0, 1, 0, 0, 0, getgenv().Resolution[".gg/scripters"], 0, 0, 0, 1)
+        end
+    )
 end
+getgenv().gg_scripters = "Aori0001"
 
 -- Botão Tela Esticada
 local btnStretch = Instance.new("TextButton", main)
